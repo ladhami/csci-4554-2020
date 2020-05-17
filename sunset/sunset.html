@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Sunset Final Project</title>
+    <link rel="icon" href="images/sunset.png" type="image/png">
+    <link rel="stylesheet" href="resources/sunset.css">
+</head>
+
+<body>
+    <div id="container">
+        <canvas id="sunset-canvas">
+            Oops ... your browser doesn't support the HTML5 canvas element
+        </canvas>
+        <div id="overlay">
+            <h3>Sunset WebGL Scene</h3>
+            <label for="sunsetHeight">Time of Day</label>
+            <input id="sunsetHeight" class="slider" type="range" min="0.1" max="1" value="1" step="0.01" />
+        </div>
+    </div>
+    <img id="beachTex" src="images/beach.jpg" style="display: none">
+
+    <!-- Sun Shaders -->
+    <script id="vertex-shader-sun" type="x-shader/x-vertex">
+        precision highp float;
+
+        attribute vec3 vPosition;
+
+        void main() {
+            gl_Position = vec4(vPosition, 1);
+        }
+    </script>
+
+    <script id="fragment-shader-sun" type="x-shader/x-fragment">
+        precision highp float;
+
+        uniform vec3 coreColor, haloColor, skyColor;
+        uniform vec2 center, uRes;
+        uniform float coreRadius, haloFalloff, uRenderScale;
+
+        void main() {
+            float d = length(gl_FragCoord.xy - center * uRes) / uRenderScale;
+            if (d <= coreRadius) {
+                gl_FragColor = vec4(coreColor, 1);
+                return;
+            }
+
+            float e = 1.0 - exp(-(d - coreRadius) * haloFalloff);
+            vec3 rgb = mix(coreColor, haloColor, e);
+
+            // color the sky with blue
+            rgb = mix(rgb, skyColor, e);
+            gl_FragColor = vec4(rgb, 1);
+        }
+    </script>
+
+    <!-- Star Shaders -->
+    <script id="vertex-shader-star" type="x-shader/x-vertex">
+        precision highp float;
+
+        attribute vec2 vPosition;
+
+        void main() {
+            gl_Position = vec4(vPosition, 0, 1);
+        }
+    </script>
+
+    <script id="fragment-shader-star" type="x-shader/x-fragment">
+        precision highp float;
+
+        uniform float uDensity;
+        uniform float uRenderScale;
+
+        float qnoise(vec2 p) {
+            return fract(sin(dot(p.xy, vec2(12.9898, 78.233))) * 43758.5453);
+        }
+
+        // get the intensity of the star
+        float exprand(vec2 p) {
+            float u = qnoise(p);
+            return log(1.0 - u)/(-2.0 * 3.14159);
+        }
+
+        void main() {
+            vec2 p = gl_FragCoord.xy/uRenderScale;
+            float c = 0.0;
+
+            // should we place a star here?
+            if (qnoise(p*2.0+11.0) < uDensity) {
+                c = exprand(p);
+            }
+            gl_FragColor = vec4(1,1,1, c);
+        }
+    </script>
+
+    <!-- Beach Shaders -->
+    <script id="vertex-shader-beach" type="x-shader/x-vertex">
+        precision mediump float;
+
+        attribute  vec4 vPosition;
+        attribute  vec3 vNormal;
+        attribute  vec2 vTexCoord;
+
+        varying vec4 fColor;
+        varying vec2 fTexCoord;
+
+        uniform vec4 ambientProduct, diffuseProduct, specularProduct;
+        uniform vec4 lightPosition;
+        uniform float shininess;
+
+        void main() {
+            vec3 pos = -(vPosition).xyz;
+            
+            // fixed light postion
+            vec3 light = lightPosition.xyz;
+            vec3 L = normalize( light - pos );
+
+            vec3 E = normalize( -pos );
+            vec3 H = normalize( L + E );
+            
+            vec4 NN = vec4(vNormal,0);
+
+            // Transform vertex normal into eye coordinates
+            vec3 N = normalize( (NN).xyz);
+
+            // Compute terms in the illumination equation
+            vec4 ambient = ambientProduct;
+
+            float Kd = max( dot(L, N), 0.0 );
+            vec4 diffuse = Kd * diffuseProduct;
+
+            float Ks = pow( max(dot(N, H), 0.0), shininess );
+            vec4 specular = Ks * specularProduct;
+            
+            if( dot(L, N) < 0.0 ) {
+                specular = vec4(0.0, 0.0, 0.0, 1.0);
+            } 
+
+            fColor = ambient + diffuse + specular;
+            fColor.a = 1.0;
+
+            fTexCoord = vTexCoord;
+
+            gl_Position = vPosition;
+        } 
+    </script>
+
+    <script id="fragment-shader-beach" type="x-shader/x-fragment">
+        precision mediump float;
+
+        varying vec4 fColor;
+        varying vec2 fTexCoord;
+
+        uniform sampler2D texture;
+
+        void
+        main() {
+            gl_FragColor = fColor * texture2D(texture, fTexCoord);
+        }
+    </script>
+
+    <script type="text/javascript" src="resources/webgl-utils.js"></script>
+    <script type="text/javascript" src="resources/initShaders.js"></script>
+    <script type="text/javascript" src="resources/MV.js"></script>
+    <script type="text/javascript" src="resources/sunset.js"></script>
+</body>
+
+</html>
