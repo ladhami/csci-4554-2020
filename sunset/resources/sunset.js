@@ -195,14 +195,11 @@ function drawScene() {
 
 function setupGl() {
     var isAutomated = navigator.webdriver
-
-    isAutomated = true;
-
     if(isAutomated) {
         document.getElementById("container").style.display = "none";             
     } else {            
         document.getElementById("preview").style.display = "none"; 
-        
+
         canvas = document.getElementById("sunset-canvas");
         gl = WebGLUtils.setupWebGL(canvas);
         if (!gl) {
