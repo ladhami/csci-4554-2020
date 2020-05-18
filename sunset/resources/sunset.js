@@ -194,16 +194,26 @@ function drawScene() {
 }
 
 function setupGl() {
-    canvas = document.getElementById("sunset-canvas");
-    gl = WebGLUtils.setupWebGL(canvas);
-    if (!gl) {
-        alert("WebGL isn't available");
-        return null;
-    }
+    var isAutomated = navigator.webdriver
 
-    gl.clearColor(0, 0, 0, 1);
-    gl.enable(gl.BLEND);
-    gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ZERO, gl.ONE);
+    isAutomated = true;
+
+    if(isAutomated) {
+        document.getElementById("container").style.display = "none";             
+    } else {            
+        document.getElementById("preview").style.display = "none"; 
+        
+        canvas = document.getElementById("sunset-canvas");
+        gl = WebGLUtils.setupWebGL(canvas);
+        if (!gl) {
+            alert("WebGL isn't available");
+            return null;
+        }
+    
+        gl.clearColor(0, 0, 0, 1);
+        gl.enable(gl.BLEND);
+        gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ZERO, gl.ONE);    
+    }
 }
 
 function setupSunCanvas() {
