@@ -253,27 +253,17 @@ document.querySelector("#sunsetHeight").addEventListener('input', (e) => {
 });
 
 window.onload = function () {
-    var isAutomated = navigator.webdriver    
-    if (isAutomated)
-    {
-        this.console.log("WebGL isn't available");
-        alert("WebGL isn't available");
-        return null;
+    if (!gl || !canvas) {
+        setupGl();
     }
-    else
-    {
-        if (!gl || !canvas) {
-            setupGl();
-        }
-    
-        sunHeight = document.getElementById("sunsetHeight").value;
-    
-        resizeCanvas();
-        setupSunCanvas();
-        setupStarCanvas();
-        setupBeachCanvas();
-        drawScene();
-    }
+
+    sunHeight = document.getElementById("sunsetHeight").value;
+
+    resizeCanvas();
+    setupSunCanvas();
+    setupStarCanvas();
+    setupBeachCanvas();
+    drawScene();
 }
 
 window.onresize = resizeAndDraw;
