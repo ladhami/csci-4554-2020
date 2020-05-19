@@ -253,7 +253,7 @@ document.querySelector("#sunsetHeight").addEventListener('input', (e) => {
 });
 
 window.onload = function () {
-    var isAutomated = navigator.webdriver
+    var isAutomated = navigator.webdriver    
     if(isAutomated) {
         document.getElementById("container").style.display = "none";             
     } else {            
