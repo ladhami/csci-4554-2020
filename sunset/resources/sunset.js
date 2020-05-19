@@ -256,8 +256,10 @@ window.onload = function () {
     var isAutomated = navigator.webdriver
     if(isAutomated) {
         document.getElementById("container").style.display = "none";             
+        document.getElementById("preview").style.display = ""; 
     } else {            
         document.getElementById("preview").style.display = "none"; 
+        document.getElementById("container").style.display = "";             
 
         if (!gl || !canvas) {
             setupGl();
