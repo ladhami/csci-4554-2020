@@ -194,23 +194,16 @@ function drawScene() {
 }
 
 function setupGl() {
-    var isAutomated = navigator.webdriver
-    if(isAutomated) {
-        document.getElementById("container").style.display = "none";             
-    } else {            
-        document.getElementById("preview").style.display = "none"; 
-
-        canvas = document.getElementById("sunset-canvas");
-        gl = WebGLUtils.setupWebGL(canvas);
-        if (!gl) {
-            alert("WebGL isn't available");
-            return null;
-        }
-    
-        gl.clearColor(0, 0, 0, 1);
-        gl.enable(gl.BLEND);
-        gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ZERO, gl.ONE);    
+    canvas = document.getElementById("sunset-canvas");
+    gl = WebGLUtils.setupWebGL(canvas);
+    if (!gl) {
+        alert("WebGL isn't available");
+        return null;
     }
+
+    gl.clearColor(0, 0, 0, 1);
+    gl.enable(gl.BLEND);
+    gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ZERO, gl.ONE);        
 }
 
 function setupSunCanvas() {
@@ -260,17 +253,24 @@ document.querySelector("#sunsetHeight").addEventListener('input', (e) => {
 });
 
 window.onload = function () {
-    if (!gl || !canvas) {
-        setupGl();
+    var isAutomated = navigator.webdriver
+    if(isAutomated) {
+        document.getElementById("container").style.display = "none";             
+    } else {            
+        document.getElementById("preview").style.display = "none"; 
+
+        if (!gl || !canvas) {
+            setupGl();
+        }
+
+        sunHeight = document.getElementById("sunsetHeight").value;
+
+        resizeCanvas();
+        setupSunCanvas();
+        setupStarCanvas();
+        setupBeachCanvas();
+        drawScene();
     }
-
-    sunHeight = document.getElementById("sunsetHeight").value;
-
-    resizeCanvas();
-    setupSunCanvas();
-    setupStarCanvas();
-    setupBeachCanvas();
-    drawScene();
 }
 
 window.onresize = resizeAndDraw;
