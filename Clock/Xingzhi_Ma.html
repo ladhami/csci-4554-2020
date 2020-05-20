@@ -1,0 +1,127 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Final Project </title>
+</head>
+
+
+
+<body onload="main()">
+
+    <img id="preview" src ="preview.png" width="100%" height="100%" style="position:fixed;top:0;left:0;">
+    
+    <div id="container">
+    <canvas id="myCanvas" width="800" height="600">
+        Please use a browser that supports canvas.
+    </canvas>
+    </div>
+</body>
+
+<script src="Texture2D.js"></script>
+<script src="../Common/initShaders.js"></script>
+<script src="../Common/MV.js"></script>
+<script src="main.js"></script>
+<script src="Graphic.js"></script>
+
+<script id="shader-vs" src="vshader.js" type="x-shader/x-vertex">
+       attribute vec3 a_Position;
+       attribute vec2 a_Texcoord;
+       attribute vec3 a_Normal;
+
+
+       uniform mat4  u_ModelMatrix;
+       uniform mat4  u_ProMatrix;
+       uniform mat4  u_ViewMatrix;
+       uniform mat4  u_NormalMatrix;
+
+       varying vec2 v_Texcoord;
+       varying vec3 v_Normal;
+       varying vec3 v_ModelPos;
+       void main() {
+            v_ModelPos = vec3(u_ModelMatrix*vec4(a_Position, 1.0));
+            v_Normal = normalize(vec3(u_NormalMatrix * vec4(a_Normal,1.0)));
+            v_Texcoord = a_Texcoord;
+
+           gl_Position = u_ProMatrix*u_ViewMatrix*u_ModelMatrix*vec4(a_Position, 1.0);
+       }
+ </script>
+
+<script id="shader-fs" type="x-shader/x-fragment">
+
+        precision mediump float;
+
+       uniform sampler2D s_Image1;
+        uniform sampler2D s_Image2;
+       uniform  vec3 u_LightPos;
+       varying vec3 v_Normal;
+       varying vec2 v_Texcoord;
+       varying vec3 v_ModelPos;
+
+
+       float LightDiffuse(vec3 _normal,vec3 _fragpos, vec3 _lightpos)
+       {
+          vec3 norm = normalize(_normal);
+          vec3 lightDir = normalize(_lightpos - _fragpos);
+          float diff = max(dot(norm, lightDir), 0.0);
+          return diff;
+       }
+
+       float LightSpecular(vec3 _normal,vec3 _fragpos, vec3 _lightpos,vec3 _viewpos)
+       {
+          float specularStrength = 0.5;//Specular Intensity
+          vec3 viewDir = normalize(_viewpos - _fragpos);
+          vec3 lightDir = normalize(_lightpos - _fragpos);
+          vec3 reflectDir = reflect(-lightDir, _normal);
+          float spec = 0.0;// = pow(max(dot(viewDir, reflectDir), 0.0), 32);
+          return  spec;
+
+       }
+        void main() {
+
+            float lightdiff = LightDiffuse(v_Normal,v_ModelPos,u_LightPos);
+            gl_FragColor = vec4( vec3(texture2D(s_Image1,vec2(v_Texcoord)))*(lightdiff*0.9+0.1),1.0);
+            //gl_FragColor =texture2D(s_Image1,vec2(v_Texcoord));
+        }
+    </script>
+
+<script id="shader-fs1" type="x-shader/x-fragment">
+
+        precision mediump float;
+
+       uniform sampler2D s_Image1;
+        uniform sampler2D s_Image2;
+       uniform  vec3 u_LightPos;
+       varying vec3 v_Normal;
+       varying vec2 v_Texcoord;
+       varying vec3 v_ModelPos;
+
+
+       float LightDiffuse(vec3 _normal,vec3 _fragpos, vec3 _lightpos)
+       {
+          vec3 norm = normalize(_normal);
+          vec3 lightDir = normalize(_lightpos - _fragpos);
+          float diff = max(dot(norm, lightDir), 0.0);
+          return diff;
+       }
+
+       float LightSpecular(vec3 _normal,vec3 _fragpos, vec3 _lightpos,vec3 _viewpos)
+       {
+          float specularStrength = 0.5;//Specular Intensity
+          vec3 viewDir = normalize(_viewpos - _fragpos);
+          vec3 lightDir = normalize(_lightpos - _fragpos);
+          vec3 reflectDir = reflect(-lightDir, _normal);
+          float spec = 0.0;// = pow(max(dot(viewDir, reflectDir), 0.0), 32);
+          return  spec;
+
+       }
+        void main() {
+
+            vec3 _normal = vec3(texture2D(s_Image2,vec2(v_Texcoord)));
+            float lightdiff = LightDiffuse(_normal,v_ModelPos,u_LightPos);
+            gl_FragColor = vec4( vec3(texture2D(s_Image1,vec2(v_Texcoord)))*(lightdiff*0.9+0.1),1.0);
+            //gl_FragColor =texture2D(s_Image1,vec2(v_Texcoord));
+        }
+    </script>
+</html>
