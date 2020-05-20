@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>Coronavirus</title>
+	<meta http-equiv="content-type" content="text/html"; charset="gb2312">
+	
+	<script id="shader-vs" type = "x-shader/x-fragment">
+		
+    attribute vec4 a_Position;
+    attribute vec4 a_Color;
+    attribute vec4 a_Normal;
+    attribute vec3 a_TextCord;
+
+    uniform vec3 eye_Position;
+    uniform mat4 u_MvpMatrix;
+    uniform mat4 u_ModelMatrix;
+    uniform mat4 u_NormalMatrix;
+    varying vec4 v_Color;
+    varying vec3 v_TextCord;
+    
+    uniform float u_ifCertainColor;
+    
+    uniform vec4 u_tempColor;
+    varying vec4 v_tempColor;
+    uniform vec4 u_certainColor;
+    uniform vec3 u_lightColor;
+    uniform vec3 u_light_position;
+    
+    	
+
+	void main() {
+      //phong model 
+      vec4 vertexPosition = u_ModelMatrix * a_Position;
+
+      vec3 lightDirection0 = normalize(u_light_position - vec3(vertexPosition));
+
+      vec3 eyetoDirection0 = normalize(eye_Position - vec3(vertexPosition));
+      vec3 lightDirection = vec3(0.0, -0.87, 0.87);
+      vec3 lightDirection2 = vec3(1.0, -0.87, -0.87);
+      vec3 lightDirection3 = vec3(-1.0, -0.87, -0.87);
+
+      vec3 lightColor = u_lightColor;
+
+      gl_Position = u_MvpMatrix * a_Position;
+      vec3 normal = normalize(vec3(u_NormalMatrix * a_Normal));
+      float tempreflec = dot(2.0 * normal, lightDirection0);
+      if(tempreflec<0.0)tempreflec=0.0;
+      vec3 reflectDirection = normalize(normal * tempreflec - lightDirection0);
+
+      float nDotL = max(dot(normal, lightDirection0), 0.0);
+      vec3 diffuse = vec3(0.8, 0.8, 0.8) * a_Color.rgb * nDotL;
+      vec3 ambient = lightColor * a_Color.rgb;
+
+      float tempColorWeight = dot(eyetoDirection0 , reflectDirection) ;
+
+      if(tempColorWeight<0.0)tempColorWeight=0.0;
+
+      vec3 specularColor = lightColor*tempColorWeight*tempColorWeight*tempColorWeight * 1.5; 
+
+      v_Color = vec4(diffuse + ambient + specularColor, a_Color.a);
+
+      
+      
+      v_TextCord = a_TextCord;
+      
+      if(u_ifCertainColor == 1.0){
+           v_Color = vec4(u_certainColor.rgb  +specularColor,u_certainColor.a);
+      }
+      
+      gl_Position = u_MvpMatrix * a_Position;
+      
+    }
+
+		
+
+	</script>
+
+	<script id="shader-fs" type = "x-shader/x-fragment">
+		precision mediump float;
+		
+		varying vec3 v_TextCord;
+    	varying vec4 v_Color;
+    	uniform sampler2D u_Sampler;
+
+		
+		void main() {
+        vec4 temp_gl_FragColor;
+
+        if(v_TextCord.z==1.0){
+             temp_gl_FragColor = texture2D(u_Sampler, v_TextCord.xy) * 0.7 + v_Color * 0.3;
+        }
+        else{
+             temp_gl_FragColor = v_Color;
+        }
+        
+        
+        gl_FragColor=temp_gl_FragColor;
+    }
+
+
+	</script>
+  <script type="text/javascript" src="../Common/webgl-utils.js"></script>
+  <script type="text/javascript" src="objFileLoader.js"></script>
+  <script type="text/javascript" src="../Common/MV.js"></script>
+  <script type="text/javascript" src="coronavirus_lung.js"></script>
+</head>
+    <body onload = "webglStart()">
+        
+    <img id="preview" src ="preview.png" width="100%" height="100%" style="position:fixed;top:0;left:0;">
+
+    <div id="container">
+        <canvas id = "myCanvas"  style="border: 1px solid red;" width= "600" height="600"></canvas>
+        <button id = "coronavirus" style="position: absolute; left: 10px; ">coronavirus</button>
+        <button id = "lung"style="position: absolute; left: 100px;  ">healthy lung</button>
+        <button id = "infected lung"style="position: absolute; left: 200px;  ">infected lung</button>
+    </div>
+
+</body>
+</html>
