@@ -346,149 +346,156 @@ function selectCheckpoint(index) {
 
 window.onload = function init() {
 
-    canvas = document.getElementById( "gl-canvas" );
+    var isAutomated = navigator.webdriver    
+    if(isAutomated) {
+        document.getElementById("container").style.display = "none";             
+    } else {            
+        document.getElementById("preview").style.display = "none"; 
 
-    gl = WebGLUtils.setupWebGL( canvas );
-    if ( !gl ) { alert( "WebGL isn't available" ); }
+        canvas = document.getElementById( "gl-canvas" );
 
-    gl.viewport( 0, 0, canvas.width, canvas.height );
-    gl.clearColor( 1.0, 1.0, 1.0, 1.0 );
+        gl = WebGLUtils.setupWebGL( canvas );
+        if ( !gl ) { alert( "WebGL isn't available" ); }
 
-    gl.enable(gl.DEPTH_TEST);
+        gl.viewport( 0, 0, canvas.width, canvas.height );
+        gl.clearColor( 1.0, 1.0, 1.0, 1.0 );
 
-    //
-    //  Load shaders and initialize attribute buffers
-    //
-    program = initShaders( gl, "vertex-shader", "fragment-shader");
+        gl.enable(gl.DEPTH_TEST);
 
-    gl.useProgram( program);
+        //
+        //  Load shaders and initialize attribute buffers
+        //
+        program = initShaders( gl, "vertex-shader", "fragment-shader");
 
-    instanceMatrix = mat4();
+        gl.useProgram( program);
 
-    projectionMatrix = ortho(-10.0,10.0,-10.0, 10.0,-10.0,10.0);
-    modelViewMatrix = mat4();
+        instanceMatrix = mat4();
+
+        projectionMatrix = ortho(-10.0,10.0,-10.0, 10.0,-10.0,10.0);
+        modelViewMatrix = mat4();
 
 
-    gl.uniformMatrix4fv(gl.getUniformLocation( program, "modelViewMatrix"), false, flatten(modelViewMatrix) );
-    gl.uniformMatrix4fv( gl.getUniformLocation( program, "projectionMatrix"), false, flatten(projectionMatrix) );
+        gl.uniformMatrix4fv(gl.getUniformLocation( program, "modelViewMatrix"), false, flatten(modelViewMatrix) );
+        gl.uniformMatrix4fv( gl.getUniformLocation( program, "projectionMatrix"), false, flatten(projectionMatrix) );
 
-    modelViewMatrixLoc = gl.getUniformLocation(program, "modelViewMatrix")
+        modelViewMatrixLoc = gl.getUniformLocation(program, "modelViewMatrix")
 
-    cube();
+        cube();
 
-    var nBuffer = gl.createBuffer();
-    gl.bindBuffer( gl.ARRAY_BUFFER, nBuffer );
-    gl.bufferData( gl.ARRAY_BUFFER, flatten(normalsArray), gl.STATIC_DRAW );
+        var nBuffer = gl.createBuffer();
+        gl.bindBuffer( gl.ARRAY_BUFFER, nBuffer );
+        gl.bufferData( gl.ARRAY_BUFFER, flatten(normalsArray), gl.STATIC_DRAW );
 
-    var vNormal = gl.getAttribLocation( program, "vNormal" );
-    gl.vertexAttribPointer( vNormal, 3, gl.FLOAT, false, 0, 0 );
-    gl.enableVertexAttribArray( vNormal );
+        var vNormal = gl.getAttribLocation( program, "vNormal" );
+        gl.vertexAttribPointer( vNormal, 3, gl.FLOAT, false, 0, 0 );
+        gl.enableVertexAttribArray( vNormal );
 
-    vBuffer = gl.createBuffer();
+        vBuffer = gl.createBuffer();
 
-    gl.bindBuffer( gl.ARRAY_BUFFER, vBuffer );
-    gl.bufferData(gl.ARRAY_BUFFER, flatten(pointsArray), gl.STATIC_DRAW);
+        gl.bindBuffer( gl.ARRAY_BUFFER, vBuffer );
+        gl.bufferData(gl.ARRAY_BUFFER, flatten(pointsArray), gl.STATIC_DRAW);
 
-    var vPosition = gl.getAttribLocation( program, "vPosition" );
-    gl.vertexAttribPointer( vPosition, 4, gl.FLOAT, false, 0, 0 );
-    gl.enableVertexAttribArray( vPosition );
+        var vPosition = gl.getAttribLocation( program, "vPosition" );
+        gl.vertexAttribPointer( vPosition, 4, gl.FLOAT, false, 0, 0 );
+        gl.enableVertexAttribArray( vPosition );
 
-    var ambientProduct = mult(lightAmbient, materialAmbient);
-    var diffuseProduct = mult(lightDiffuse, materialDiffuse);
-    var specularProduct = mult(lightSpecular, materialSpecular);
+        var ambientProduct = mult(lightAmbient, materialAmbient);
+        var diffuseProduct = mult(lightDiffuse, materialDiffuse);
+        var specularProduct = mult(lightSpecular, materialSpecular);
 
-    gl.uniform4fv(gl.getUniformLocation(program, "ambientProduct"),
-       flatten(ambientProduct));
-    gl.uniform4fv(gl.getUniformLocation(program, "diffuseProduct"),
-       flatten(diffuseProduct) );
-    gl.uniform4fv(gl.getUniformLocation(program, "specularProduct"),
-       flatten(specularProduct) );
-    gl.uniform4fv(gl.getUniformLocation(program, "lightPosition"),
-       flatten(lightPosition) );
-    gl.uniform1f(gl.getUniformLocation(program, "shininess"),materialShininess);
+        gl.uniform4fv(gl.getUniformLocation(program, "ambientProduct"),
+        flatten(ambientProduct));
+        gl.uniform4fv(gl.getUniformLocation(program, "diffuseProduct"),
+        flatten(diffuseProduct) );
+        gl.uniform4fv(gl.getUniformLocation(program, "specularProduct"),
+        flatten(specularProduct) );
+        gl.uniform4fv(gl.getUniformLocation(program, "lightPosition"),
+        flatten(lightPosition) );
+        gl.uniform1f(gl.getUniformLocation(program, "shininess"),materialShininess);
 
-    // checkpoint controls
-    document.getElementById("checkpoint-0").onclick = function(event) {
-      selectCheckpoint(0);
+        // checkpoint controls
+        document.getElementById("checkpoint-0").onclick = function(event) {
+        selectCheckpoint(0);
+        }
+        document.getElementById("checkpoint-1").onclick = function(event) {
+        selectCheckpoint(1);
+        }
+        document.getElementById("checkpoint-2").onclick = function(event) {
+        selectCheckpoint(2);
+        }
+
+        document.getElementById("animationRunner").onchange = function(event) {
+        animationRunnerStatus = !animationRunnerStatus;
+        var checkIndex = 0;
+        var startTime = Date.now();
+        var startTheta = checkpointThetaList[0];
+        console.log(animationRunnerStatus);
+        }
+
+        // roborot position controls
+            document.getElementById("slider0").oninput = function(event) {
+            theta[torsoId ] = event.target.value;
+            initNodes(torsoId);
+            checkpointThetaList[checkpointIndex][torsoId ] = event.target.value;
+
+        };
+            document.getElementById("slider1").oninput = function(event) {
+            theta[head1Id] = event.target.value;
+            initNodes(head1Id);
+            checkpointThetaList[checkpointIndex][head1Id ] = event.target.value;
+        };
+
+        document.getElementById("slider2").oninput = function(event) {
+            theta[leftUpperArmId] = event.target.value;
+            initNodes(leftUpperArmId);
+            checkpointThetaList[checkpointIndex][leftUpperArmId ] = event.target.value;
+        };
+        document.getElementById("slider3").oninput = function(event) {
+            theta[leftLowerArmId] =  event.target.value;
+            initNodes(leftLowerArmId);
+            checkpointThetaList[checkpointIndex][leftLowerArmId ] = event.target.value;
+        };
+
+            document.getElementById("slider4").oninput = function(event) {
+            theta[rightUpperArmId] = event.target.value;
+            initNodes(rightUpperArmId);
+            checkpointThetaList[checkpointIndex][rightUpperArmId ] = event.target.value;
+        };
+        document.getElementById("slider5").oninput = function(event) {
+            theta[rightLowerArmId] =  event.target.value;
+            initNodes(rightLowerArmId);
+            checkpointThetaList[checkpointIndex][rightLowerArmId ] = event.target.value;
+        };
+            document.getElementById("slider6").oninput = function(event) {
+            theta[leftUpperLegId] = event.target.value;
+            initNodes(leftUpperLegId);
+            checkpointThetaList[checkpointIndex][leftUpperLegId ] = event.target.value;
+        };
+        document.getElementById("slider7").oninput = function(event) {
+            theta[leftLowerLegId] = event.target.value;
+            initNodes(leftLowerLegId);
+            checkpointThetaList[checkpointIndex][leftLowerLegId ] = event.target.value;
+        };
+        document.getElementById("slider8").oninput = function(event) {
+            theta[rightUpperLegId] =  event.target.value;
+            initNodes(rightUpperLegId);
+            checkpointThetaList[checkpointIndex][rightUpperLegId ] = event.target.value;
+        };
+            document.getElementById("slider9").oninput = function(event) {
+            theta[rightLowerLegId] = event.target.value;
+            initNodes(rightLowerLegId);
+            checkpointThetaList[checkpointIndex][rightLowerLegId ] = event.target.value;
+        };
+        document.getElementById("slider10").oninput = function(event) {
+            theta[head2Id] = event.target.value;
+            initNodes(head2Id);
+            checkpointThetaList[checkpointIndex][head2Id ] = event.target.value;
+        };
+
+        for(i=0; i<numNodes; i++) initNodes(i);
+
+        render();
     }
-    document.getElementById("checkpoint-1").onclick = function(event) {
-      selectCheckpoint(1);
-    }
-    document.getElementById("checkpoint-2").onclick = function(event) {
-      selectCheckpoint(2);
-    }
-
-    document.getElementById("animationRunner").onchange = function(event) {
-      animationRunnerStatus = !animationRunnerStatus;
-      var checkIndex = 0;
-      var startTime = Date.now();
-      var startTheta = checkpointThetaList[0];
-      console.log(animationRunnerStatus);
-    }
-
-    // roborot position controls
-        document.getElementById("slider0").oninput = function(event) {
-        theta[torsoId ] = event.target.value;
-        initNodes(torsoId);
-        checkpointThetaList[checkpointIndex][torsoId ] = event.target.value;
-
-    };
-        document.getElementById("slider1").oninput = function(event) {
-        theta[head1Id] = event.target.value;
-        initNodes(head1Id);
-        checkpointThetaList[checkpointIndex][head1Id ] = event.target.value;
-    };
-
-    document.getElementById("slider2").oninput = function(event) {
-         theta[leftUpperArmId] = event.target.value;
-         initNodes(leftUpperArmId);
-         checkpointThetaList[checkpointIndex][leftUpperArmId ] = event.target.value;
-    };
-    document.getElementById("slider3").oninput = function(event) {
-         theta[leftLowerArmId] =  event.target.value;
-         initNodes(leftLowerArmId);
-         checkpointThetaList[checkpointIndex][leftLowerArmId ] = event.target.value;
-    };
-
-        document.getElementById("slider4").oninput = function(event) {
-        theta[rightUpperArmId] = event.target.value;
-        initNodes(rightUpperArmId);
-        checkpointThetaList[checkpointIndex][rightUpperArmId ] = event.target.value;
-    };
-    document.getElementById("slider5").oninput = function(event) {
-         theta[rightLowerArmId] =  event.target.value;
-         initNodes(rightLowerArmId);
-         checkpointThetaList[checkpointIndex][rightLowerArmId ] = event.target.value;
-    };
-        document.getElementById("slider6").oninput = function(event) {
-        theta[leftUpperLegId] = event.target.value;
-        initNodes(leftUpperLegId);
-        checkpointThetaList[checkpointIndex][leftUpperLegId ] = event.target.value;
-    };
-    document.getElementById("slider7").oninput = function(event) {
-         theta[leftLowerLegId] = event.target.value;
-         initNodes(leftLowerLegId);
-         checkpointThetaList[checkpointIndex][leftLowerLegId ] = event.target.value;
-    };
-    document.getElementById("slider8").oninput = function(event) {
-         theta[rightUpperLegId] =  event.target.value;
-         initNodes(rightUpperLegId);
-         checkpointThetaList[checkpointIndex][rightUpperLegId ] = event.target.value;
-    };
-        document.getElementById("slider9").oninput = function(event) {
-        theta[rightLowerLegId] = event.target.value;
-        initNodes(rightLowerLegId);
-        checkpointThetaList[checkpointIndex][rightLowerLegId ] = event.target.value;
-    };
-    document.getElementById("slider10").oninput = function(event) {
-         theta[head2Id] = event.target.value;
-         initNodes(head2Id);
-         checkpointThetaList[checkpointIndex][head2Id ] = event.target.value;
-    };
-
-    for(i=0; i<numNodes; i++) initNodes(i);
-
-    render();
 }
 
 // t varies between 0 and 1
