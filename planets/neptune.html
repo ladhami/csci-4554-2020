@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+
+<script id="vertex-shader" type="x-shader/x-vertex">
+
+// assume both position and normal are in homogeneous form
+
+attribute vec4 vPosition;
+attribute vec4 vNormal;
+varying vec4 fColor;
+
+uniform vec4 ambientProduct, diffuseProduct, specularProduct;
+uniform mat4 modelViewMatrix;
+uniform mat4 projectionMatrix;
+uniform vec4 lightPosition;
+uniform float shininess;
+uniform vec3 eyePosition;
+
+varying float s, t;
+
+void
+main()
+{
+
+    float pi = acos(0.0);
+
+    //Matched coordinate parameter
+
+    s= 0.5*acos(vPosition.x)/pi;
+
+    t = 0.5*asin(vPosition.y/sqrt(1.0-vPosition.x*vPosition.x))/pi;
+
+    vec3 L;
+
+    if(lightPosition.w == 0.0)  L = normalize( lightPosition.xyz);
+    else  L = normalize( (lightPosition - vPosition) .xyz);
+
+
+    vec3 E = normalize( eyePosition);
+
+    vec3 H = normalize( L + E );
+
+
+    // Transform vertex normal into eye coordinates
+
+    vec3 N = normalize(vNormal.xyz);
+
+    // Compute terms in the illumination equation
+    vec4 ambient = ambientProduct;
+
+    float Kd = max( dot(L, N), 0.0 );
+    vec4  diffuse = Kd*diffuseProduct;
+
+    float Ks = pow( max(dot(N, H), 0.0), shininess );
+    vec4  specular = Ks * specularProduct;
+
+    if( dot(L, N) < 0.0 ) {
+	specular = vec4(0.0, 0.0, 0.0, 1.0);
+    }
+
+    gl_Position = projectionMatrix * modelViewMatrix * vPosition;
+
+    fColor = ambient + diffuse +specular;
+    fColor.a = 1.0;
+
+}
+</script>
+
+<script id="fragment-shader" type="x-shader/x-fragment">
+
+precision mediump float;
+varying vec4 fColor;
+varying float s, t;
+uniform sampler2D texture;
+
+void
+main()
+{
+
+    gl_FragColor = fColor * texture2D( texture, vec2(s, t));
+
+}
+</script>
+
+<button onclick="myFunction1()">Venus</button>
+<button onclick="myFunction2()">Mercury</button>
+<button onclick="myFunction3()">Jupiter</button>
+<button onclick="myFunction4()">Pluto</button>
+<button onclick="myFunction5()">The Milky Way</button>
+
+
+<p> </p>
+<button id = "Button2">Toggle Rotation</button>
+<button id = "Button0">Facing up</button>
+<button id = "Button1">Facing down</button>
+<button id = "Button3">Far move</button>
+<button id = "Button4">Near move</button>
+<p> </p>
+
+
+<script>
+    function myFunction1() {
+        location.assign("venus.html");
+    }
+</script>
+<script>
+    function myFunction2() {
+        location.assign("mercury.html");
+    }
+</script>
+<script>
+    function myFunction3() {
+        location.assign("jupiter.html");
+    }
+</script>
+<script>
+    function myFunction4() {
+        location.assign("pluto.html");
+    }
+</script>
+<script>
+    function myFunction5() {
+        location.assign("TheMilkyWay.html");
+    }
+</script>
+
+
+
+
+<script type="text/javascript" src="../Common/webgl-utils.js"></script>
+<script type="text/javascript" src="../Common/initShaders.js"></script>
+
+<script type="text/javascript" src="../Common/MV.js"></script>
+<script type="text/javascript" src="neptune.js"></script>
+
+<body>
+<canvas id="gl-canvas" width="1024" height="1024">
+    Oops ... your browser doesn't support the HTML5 canvas element
+</canvas>
+<img id = "texImage" src = "neptune.jpg" hidden></img>
+
+</body>
+</html>
+
