@@ -252,7 +252,7 @@ document.querySelector("#sunsetHeight").addEventListener('input', (e) => {
     drawScene();
 });
 
-window.onload = function () {
+function webglStart() {
     var isAutomated = navigator.webdriver    
     if(isAutomated) {
         document.getElementById("container").style.display = "none";             
