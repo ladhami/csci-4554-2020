@@ -58,6 +58,7 @@ var bufferId;
 
 window.onload = function init() {
     var isAutomated = navigator.webdriver    
+    isAutomated = false;
     if(isAutomated) 
     {
         document.getElementById("container").style.display = "none";             
