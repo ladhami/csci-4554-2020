@@ -64,6 +64,8 @@ window.onload = function init() {
     } 
     else 
     {  
+        document.getElementById("preview").style.display = "none"; 
+
         canvas = document.getElementById( "gl-canvas" );
 
         gl = WebGLUtils.setupWebGL( canvas );
