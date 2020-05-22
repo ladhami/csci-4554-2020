@@ -125,6 +125,15 @@ function tetrahedron(a, b, c, d, n) {
 
 window.onload = function init() {
 
+    var isAutomated = navigator.webdriver
+    isAutomated = true;
+    if(isAutomated) 
+    {
+        document.getElementById("container").style.display = "none";             
+    } 
+    else 
+    {  
+        document.getElementById("preview").style.display = "none"; 
     canvas = document.getElementById( "gl-canvas" );
 
     gl = WebGLUtils.setupWebGL( canvas );
@@ -202,6 +211,7 @@ window.onload = function init() {
     configureTexture( image );
 
     render();
+    }
 }
 
 
