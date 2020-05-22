@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+
+<button onclick="myFunction1()">Jupiter</button>
+<button onclick="myFunction2()">Mercury</button>
+<button onclick="myFunction3()">Neptune</button>
+<button onclick="myFunction4()">Pluto</button>
+<button onclick="myFunction5()">Venus</button>
+<p> </p>
+<script>
+    function myFunction1() {
+        location.assign("jupiter.html");
+    }
+</script>
+<script>
+    function myFunction2() {
+        location.assign("mercury.html");
+    }
+</script>
+<script>
+    function myFunction3() {
+        location.assign("neptune.html");
+    }
+</script>
+<script>
+    function myFunction4() {
+        location.assign("pluto.html");
+    }
+</script>
+<script>
+    function myFunction5() {
+        location.assign("venus.html");
+    }
+</script>
+<script id="vertex-shader" type="x-shader/x-vertex">
+
+attribute  vec4 vPosition;
+attribute  vec4 vColor;
+varying vec4 fColor1;
+
+uniform mat4 modelViewMatrix;
+uniform mat4 projectionMatrix;
+uniform float pointSize;
+
+void main() 
+{
+    gl_Position= projectionMatrix * modelViewMatrix * vPosition;
+    fColor1 = vColor;
+    gl_PointSize = pointSize;
+} 
+</script>
+
+<script id="fragment-shader" type="x-shader/x-fragment">
+
+precision mediump float;
+
+varying vec4 fColor1;
+
+void
+main()
+{
+    gl_FragColor = fColor1;
+}
+</script>
+
+
+<script type="text/javascript" src="../Common/webgl-utils.js"></script>
+<script type="text/javascript" src="../Common/initShaders.js"></script>
+
+<script type="text/javascript" src="../Common/MV.js"></script>
+<script type="text/javascript" src="TheMilkyWay.js"></script>
+
+
+<body>
+    <img id="preview" src ="preview.png" width="100%" height="100%" style="position:fixed;top:0;left:0;">
+    
+    <div id="container">
+        <canvas id="gl-canvas" width="1024" height="1024">
+        Oops ... your browser doesn't support the HTML5 canvas element
+        </canvas>
+    </div>
+</body>
+</html>
