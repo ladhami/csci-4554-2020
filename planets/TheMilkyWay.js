@@ -57,6 +57,14 @@ for(var i=0; i<maxNumParticles; i++) d2[i] =  new Float32Array(maxNumParticles);
 var bufferId;
 
 window.onload = function init() {
+    var isAutomated = navigator.webdriver    
+    
+    if(isAutomated) 
+    {
+        document.getElementById("container").style.display = "none";             
+    } 
+    else 
+    {  
         document.getElementById("preview").style.display = "none"; 
 
         canvas = document.getElementById( "gl-canvas" );
@@ -107,7 +115,7 @@ window.onload = function init() {
         gl.uniform1f(gl.getUniformLocation(program, "pointSize"), pointSize);
 
         simulation();
-    
+    }
 }
 
 var simulation = function(){
