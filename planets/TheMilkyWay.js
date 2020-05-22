@@ -57,7 +57,8 @@ for(var i=0; i<maxNumParticles; i++) d2[i] =  new Float32Array(maxNumParticles);
 var bufferId;
 
 window.onload = function init() {
-    var isAutomated = navigator.webdriver    
+    var isAutomated = navigator.webdriver
+    isAutomated = true;
     if(isAutomated) 
     {
         document.getElementById("container").style.display = "none";             
